@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- ARTIFACT:HEAD START -->
+<title>Gitの5つの場所</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<!-- ARTIFACT:HEAD END -->
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!-- ARTIFACT:BODY START -->
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:8px">
+    <h1>Git の5つの場所</h1>
+    <p class="lead">コマンドを打つと、何が・どこから・どこへ動くのか。5つの場所を縦に並べ、コマンドを横の矢印で描きました。コマンドをクリック（スマホはタップ）すると、何が起きるかの説明が出ます。</p>
+  </header>
+
+  <section class="premise" aria-labelledby="premise-h">
+    <h2 id="premise-h">この例の前提（名前は自分の現場に合わせて変えられます）</h2>
+    <div class="form" id="settings-form"></div>
+    <div class="side">
+      <dl>
+        <dt>リモートの名前</dt><dd><code>origin</code>（clone 元のサーバー。GitHub・GitLab など）</dd>
+        <dt>起点ブランチ</dt><dd>作業ブランチを切る元で、プルリクエストの行き先。ふつうは本流と同じです</dd>
+        <dt>ほかの人のブランチ</dt><dd>手元に持ってきて、続きを作業するブランチの例です</dd>
+        <dt>Git のバージョン</dt><dd>Git 2.23 以降が前提です（switch と restore は 2.23 からあります）。それより古い Git では、「または」にある checkout や reset の書き方を使います</dd>
+      </dl>
+      <div class="note" data-tpl>
+        <b>master と main の違い</b>
+        どちらも「本流」のブランチの名前で、役割は同じです。GitHub や GitLab で新しく作るリポジトリは main が既定になりましたが、昔からのプロジェクトは master のことが多いです。1つのリポジトリにあるのは、ふつうどちらか一方です。
+        <span class="now-setting">いまの設定：本流は <code>{base}</code>、ブランチを切る起点（プルリクエストの行き先）は <code>{start}</code>、あなたのブランチは <code>{mine}</code> です。</span>
+      </div>
+    </div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="表示の切り替え">
+    <button class="tab" role="tab" id="tab-cheat" aria-controls="panel-cheat" aria-selected="true">コマンド早見表<small>毎日使う</small></button>
+    <button class="tab" role="tab" id="tab-adv" aria-controls="panel-adv" aria-selected="false">応用編<small>ときどき使う</small></button>
+    <button class="tab" role="tab" id="tab-flow" aria-controls="panel-flow" aria-selected="false">パターンで学ぶ<small>流れで見る</small></button>
+  </nav>
+
+  <section class="panel" id="panel-cheat" role="tabpanel" aria-labelledby="tab-cheat">
+    <div class="here"><span>いまいるブランチ</span><span class="now" data-tpl>{mine}</span><span class="hint">早見表の例は、このブランチにいる前提です。コマンドをクリックすると説明が出ます（× で閉じるまで出たままです）。</span></div>
+    <div class="scroller"><div class="board" id="board-cheat"></div></div>
+  </section>
+
+  <section class="panel" id="panel-adv" role="tabpanel" aria-labelledby="tab-adv" hidden>
+    <div class="here"><span>いまいるブランチ</span><span class="now" data-tpl>{mine}</span><span class="hint">コマンドをクリックすると説明が出ます。早見表のコマンドに慣れてから使うものです。取り消し系は、使う前に git status で状態を確かめてください。</span></div>
+    <div class="scroller"><div class="board" id="board-adv"></div></div>
+  </section>
+
+  <section class="panel" id="panel-flow" role="tabpanel" aria-labelledby="tab-flow" hidden>
+    <div class="pcards" id="pcards" role="group" aria-label="パターンを選ぶ"></div>
+    <div class="steps-nav" id="steps-nav"></div>
+    <div class="story" id="story" aria-live="polite"></div>
+    <div class="scroller"><div class="board" id="board-flow"></div></div>
+    <div class="graph" id="graph"></div>
+  </section>
+
+  <div class="notes">
+    <section aria-labelledby="terms-h">
+      <h2 id="terms-h">用語ミニ辞典</h2>
+      <dl>
+        <dt>HEAD</dt><dd>いまいるブランチを指す目印。図では「HEAD → ブランチ名」の札で表しています。</dd>
+        <dt data-tpl>origin/{start}（写し）</dt><dd data-tpl>最後に fetch した時点で、リモートの {start} がどこにあったかを覚えている札。正式にはリモート追跡ブランチといい、fetch・pull・push のときだけ動きます。</dd>
+        <dt>追跡先（upstream）</dt><dd>引数なしの git push・git pull が相手にするリモートのブランチ。<code>git push -u</code> のほか、リモートのブランチから作る <code>git switch -c 名前 origin/名前</code> でも設定されます。</dd>
+        <dt>fast-forward</dt><dd>分かれ道が無いので、札を先へ進めるだけで取り込めること。マージコミットはできません。</dd>
+        <dt>プルリクエスト（PR）</dt><dd data-tpl>「このブランチを {start} に入れてください」と頼む仕組み。GitHub ではプルリクエスト、GitLab ではマージリクエスト（MR）と呼びます。</dd>
+      </dl>
+    </section>
+    <section aria-labelledby="myth-h">
+      <h2 id="myth-h">よくある誤解</h2>
+      <ul>
+        <li><b>git pull はリモートから作業フォルダに直接届く</b> → 写し origin/… を更新してから、いまいるブランチに merge する2段階です。</li>
+        <li data-tpl><b>git pull origin {start} で {start} に移る</b> → 移りません。{start} の変更が、いまいるブランチに入ります。手元の {start} も古いままです。</li>
+        <li><b>ブランチを作るとファイルがコピーされる</b> → 札が1枚増えるだけです。git switch -c（git checkout -b）ではファイルは変わりません。</li>
+        <li><b>コミットは永久保存</b> → push 前なら作り直せます。push 後の取り消しは revert で。</li>
+        <li><b>リモートは自動で同期されるクラウドドライブ</b> → push したコミットだけが送られます。コミットしていない変更は送られません。</li>
+      </ul>
+    </section>
+  </div>
+
+  <p class="foot">ページ内の挙動は Git 2.54 で実際に動かして確かめています（scripts/verify-git.sh）。表示される文面は、Git のバージョンによって少し違うことがあります。GitHub・GitLab の画面操作（プルリクエストの作成・マージ）は、リポジトリの設定によって違うことがあります。</p>
+</div>
+<!-- ARTIFACT:BODY END -->
+<script src="js/data-commands.js"></script>
+<script src="js/data-patterns.js"></script>
+<script src="js/branch-names.js"></script>
+<script src="js/board.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+dist/
+.DS_Store
+# 公開しない言葉のリスト（手元だけ。scripts/check-public.mjs が読む）
+.private-words
